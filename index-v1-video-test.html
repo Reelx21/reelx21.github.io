@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Reelx21</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family:Arial,sans-serif;overflow:hidden}
+    #feed{height:100dvh;width:100%;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+    .item{position:relative;width:100%;height:100dvh;scroll-snap-align:start;background:#000;display:flex;align-items:center;justify-content:center}
+    video{width:100%;height:100%;object-fit:cover;background:#000}
+    .top{position:absolute;top:0;left:0;right:0;padding:18px 18px 10px;z-index:5;display:flex;justify-content:space-between;pointer-events:none;background:linear-gradient(#0008,transparent)}
+    .brand{font-size:20px;font-weight:700}
+    .badge{font-size:12px;opacity:.8}
+    .side{position:absolute;right:12px;bottom:105px;z-index:5;display:flex;flex-direction:column;gap:18px;align-items:center}
+    button{border:0;background:transparent;color:#fff;cursor:pointer}
+    .action{font-size:28px;text-shadow:0 2px 6px #000}
+    .count{font-size:12px;margin-top:-14px;text-shadow:0 2px 5px #000}
+    .bottom{position:absolute;left:0;right:65px;bottom:22px;z-index:5;padding:12px 16px;text-shadow:0 2px 6px #000;background:linear-gradient(transparent,#0005)}
+    .user{font-weight:700;margin-bottom:7px}
+    .caption{font-size:14px;line-height:1.35}
+    .sound{position:absolute;right:14px;top:70px;z-index:6;width:42px;height:42px;border-radius:50%;background:#0008;font-size:20px}
+    .pause{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;font-size:52px;opacity:0;transition:.15s;text-shadow:0 2px 8px #000}
+    .pause.show{opacity:1}
+    .ad-slot{height:100%;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;background:#111;padding:20px}
+    .ad-box{width:min(92%,480px);min-height:120px;border:1px dashed #555;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#aaa;text-align:center}
+    .ad-label{font-size:12px;opacity:.7;margin-bottom:8px}
+    @media(min-width:700px){
+      .item video{width:56.25vh;max-width:480px}
+      .item{background:#111}
+    }
+  </style>
+</head>
+<body>
+
+<div id="feed"></div>
+
+<script>
+/*
+  REELX21 V1
+  ==========================================
+  1. Ganti URL video di bagian VIDEOS.
+  2. Setelah mendapat kode Adsterra, tempel kode
+     Banner/Native pada ADSTERRA_BANNER_HTML.
+  3. Kode Popunder Adsterra biasanya berupa script.
+     Tempel sesuai kode yang diberikan Adsterra.
+*/
+
+// ====== SUMBER VIDEO ======
+const VIDEOS = [
+  {
+    src: "https://cdn.truefilesize.com/mp4/sample-portrait.mp4",
+    username: "@Reelx21",
+    caption: "Video demo — V1 berhasil berjalan."
+  },
+  {
+    src: "https://cdn.truefilesize.com/mp4/sample-portrait.mp4",
+    username: "@Reelx21",
+    caption: "Swipe ke atas untuk video berikutnya."
+  },
+  {
+    src: "https://cdn.truefilesize.com/mp4/sample-portrait.mp4",
+    username: "@Reelx21",
+    caption: "Nanti video ini kita ganti dengan URL Cloudflare R2."
+  }
+];
+
+// ====== IKLAN ADSTERRA ======
+// Tempel kode Banner/Native Anda di antara tanda backtick di bawah.
+// Contoh: const ADSTERRA_BANNER_HTML = `<script>...</script>`;
+const ADSTERRA_BANNER_HTML = `
+  <div class="ad-box">
+    <div>
+      <div class="ad-label">ADVERTISEMENT</div>
+      <div>Tempat Adsterra Banner / Native</div>
+    </div>
+  </div>
+`;
+
+// Popunder: jangan tambahkan kode palsu. Setelah Anda kirim kode
+// Popunder asli dari Adsterra, kita masukkan di sini.
+
+// ====== PEMBUAT FEED ======
+const feed = document.getElementById("feed");
+let videoElements = [];
+let viewCounts = {};
+
+function makeVideo(data, index){
+  const item = document.createElement("section");
+  item.className = "item";
+  item.dataset.index = index;
+
+  item.innerHTML = `
+    <div class="top">
+      <div class="brand">Reelx21</div>
+      <div class="badge">V1</div>
+    </div>
+
+    <video
+      src="${data.src}"
+      playsinline
+      preload="metadata"
+      controls
+      loop
+      muted
+      disablepictureinpicture
+    ></video>
+
+    <button class="sound" aria-label="Suara">🔇</button>
+    <div class="pause">▶</div>
+
+    <div class="side">
+      <button class="action like" aria-label="Like">♡</button>
+      <div class="count likes">0</div>
+      <button class="action share" aria-label="Share">↗</button>
+      <div class="count views">0 views</div>
+    </div>
+
+    <div class="bottom">
+      <div class="user"></div>
+      <div class="caption"></div>
+    </div>
+    <div class="video-error" style="display:none;position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);z-index:8;background:#000c;padding:14px 16px;border-radius:10px;text-align:center;width:80%;">
+      Video gagal dimuat.<br><small>Tekan ulang atau periksa koneksi.</small>
+    </div>
+  `;
+
+  const errorBox = item.querySelector(".video-error");
+  video.addEventListener("error", ()=>{
+    errorBox.style.display = "block";
+  });
+
+  // Isi teks dengan DOM API supaya tidak pernah tampil sebagai ${...}
+  item.querySelector(".user").textContent = data.username;
+  item.querySelector(".caption").textContent = data.caption;
+
+  const video = item.querySelector("video");
+  const sound = item.querySelector(".sound");
+  const pause = item.querySelector(".pause");
+  const like = item.querySelector(".like");
+  const likes = item.querySelector(".likes");
+  const share = item.querySelector(".share");
+  const views = item.querySelector(".views");
+
+  viewCounts[index] = 0;
+
+  item.addEventListener("click", (e)=>{
+    if(e.target.closest("button")) return;
+    if(video.paused){
+      video.play().catch(()=>{});
+      pause.textContent = "▶";
+    }else{
+      video.pause();
+      pause.textContent = "Ⅱ";
+    }
+    pause.classList.add("show");
+    setTimeout(()=>pause.classList.remove("show"),350);
+  });
+
+  sound.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    video.muted = !video.muted;
+    sound.textContent = video.muted ? "🔇" : "🔊";
+  });
+
+  like.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const liked = like.dataset.liked === "1";
+    like.dataset.liked = liked ? "0" : "1";
+    like.textContent = liked ? "♡" : "♥";
+    let n = Number(likes.textContent) || 0;
+    likes.textContent = liked ? Math.max(0,n-1) : n+1;
+  });
+
+  share.addEventListener("click", async (e)=>{
+    e.stopPropagation();
+    const url = location.href;
+    try{
+      if(navigator.share){
+        await navigator.share({title:"Reelx21",text:data.caption,url});
+      }else{
+        await navigator.clipboard.writeText(url);
+        alert("Link disalin.");
+      }
+    }catch(err){}
+  });
+
+  video.addEventListener("play",()=>{
+    if(viewCounts[index] === 0){
+      viewCounts[index] = 1;
+      views.textContent = "1 view";
+    }
+  });
+
+  videoElements.push(video);
+  return item;
+}
+
+function addAd(){
+  const ad = document.createElement("section");
+  ad.className = "ad-slot";
+  ad.innerHTML = ADSTERRA_BANNER_HTML;
+  return ad;
+}
+
+VIDEOS.forEach((v,i)=>{
+  feed.appendChild(makeVideo(v,i));
+
+  // Iklan hanya setelah video ke-5 agar tidak terlalu agresif.
+  if((i+1) % 5 === 0 && i !== VIDEOS.length-1){
+    feed.appendChild(addAd());
+  }
+});
+
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    const video = entry.target.querySelector("video");
+    if(!video) return;
+
+    if(entry.isIntersecting && entry.intersectionRatio >= .65){
+      videoElements.forEach(v=>{
+        if(v !== video) v.pause();
+      });
+      video.play().catch(()=>{});
+    }else{
+      video.pause();
+    }
+  });
+},{threshold:[.65]});
+
+document.querySelectorAll(".item").forEach(item=>observer.observe(item));
+
+function escapeHtml(text){
+  return String(text).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+</script>
+
+</body>
+</html>

@@ -51,19 +51,19 @@
 // ====== SUMBER VIDEO ======
 const VIDEOS = [
   {
-    src: "https://cdn.truefilesize.com/mp4/sample-portrait.mp4",
+    src: "https://res.cloudinary.com/jqjqfu7f/video/upload/v1788716206/ssstik.io__tourguide_dabong_1788716188647.mp4",
     username: "@Reelx21",
     caption: "Video demo — V1 berhasil berjalan."
   },
   {
-    src: "https://cdn.truefilesize.com/mp4/sample-portrait.mp4",
+    src: "https://res.cloudinary.com/jqjqfu7f/video/upload/v1788716206/ssstik.io__tourguide_dabong_1788716188647.mp4",
     username: "@Reelx21",
     caption: "Swipe ke atas untuk video berikutnya."
   },
   {
-    src: "https://cdn.truefilesize.com/mp4/sample-portrait.mp4",
+    src: "https://res.cloudinary.com/jqjqfu7f/video/upload/v1788716206/ssstik.io__tourguide_dabong_1788716188647.mp4",
     username: "@Reelx21",
-    caption: "Nanti video ini kita ganti dengan URL Cloudflare R2."
+    caption: "Video ini menggunakan URL Cloudinary untuk pengujian."
   }
 ];
 
@@ -128,6 +128,8 @@ function makeVideo(data, index){
   `;
 
   const errorBox = item.querySelector(".video-error");
+  const video = item.querySelector("video");
+
   video.addEventListener("error", ()=>{
     errorBox.style.display = "block";
   });
@@ -135,8 +137,6 @@ function makeVideo(data, index){
   // Isi teks dengan DOM API supaya tidak pernah tampil sebagai ${...}
   item.querySelector(".user").textContent = data.username;
   item.querySelector(".caption").textContent = data.caption;
-
-  const video = item.querySelector("video");
   const sound = item.querySelector(".sound");
   const pause = item.querySelector(".pause");
   const like = item.querySelector(".like");

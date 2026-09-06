@@ -1,17 +1,18 @@
-# Reelx21 V4 — Cloudinary Reels + Adsterra
+# Reelx21 V5
 
-GitHub Pages static Reelx21 player using Cloudinary video URLs.
+Flow:
+VIDEO 1 -> AD -> VIDEO 2 -> AD -> VIDEO 3 -> AD -> ...
 
-## Included Adsterra units
-- Popunder
-- Native Banner
-- Banner 300x250 (desktop/tablet)
-- Banner 320x50 (small mobile)
+- Cloudinary video source
+- autoplay when visible
+- no video loop
+- video end automatically scrolls to the next ad slide
+- ad slide has a "Lanjut ke video" button
+- then the next video autoplay
+- Like, Share, Sound, local views
+- Adsterra Popunder is loaded once
+- Native / Banner slots are separated from video
 
-Ads are loaded from `js/ads.js` and inserted by `js/app.js`.
+Add videos in `js/videos.js`.
 
-## Video data
-Edit `js/videos.js` and add Cloudinary MP4 URLs to the `VIDEOS` array.
-
-## Important
-Do not paste the Adsterra scripts a second time elsewhere in the HTML. If Adsterra changes or disables a code, update only `js/ads.js`.
+Note: ad provider scripts control their own behavior. Do not duplicate the Popunder script elsewhere.

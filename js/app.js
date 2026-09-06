@@ -177,7 +177,20 @@
   }
 
   const fragment = document.createDocumentFragment();
-  VIDEOS.forEach((video, index) => fragment.appendChild(makeCard(video, index)));
+  VIDEOS.forEach((video, index) => {
+    fragment.appendChild(makeCard(video, index));
+
+    // Put the ad section after the first reel, then after every 3 reels.
+    // This keeps ads outside the video player and avoids covering controls.
+    if ((index === 0 || (index + 1) % 3 === 0) && window.Reelx21Ads) {
+      const adSection = document.createElement("section");
+      adSection.className = "reel-ad-section";
+      adSection.setAttribute("aria-label", "Advertisement");
+      adSection.appendChild(window.Reelx21Ads.createNativeAd());
+      adSection.appendChild(window.Reelx21Ads.createBannerAd());
+      fragment.appendChild(adSection);
+    }
+  });
   feed.appendChild(fragment);
 
   const observer = new IntersectionObserver((entries) => {

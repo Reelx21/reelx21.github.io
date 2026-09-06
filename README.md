@@ -1,33 +1,17 @@
-# Reelx21 V3 — Cloudinary Reels
+# Reelx21 V4 — Cloudinary Reels + Adsterra
 
-Versi ini menggunakan Cloudinary sebagai tempat penyimpanan video dan GitHub Pages sebagai frontend.
+GitHub Pages static Reelx21 player using Cloudinary video URLs.
 
-## Struktur
+## Included Adsterra units
+- Popunder
+- Native Banner
+- Banner 300x250 (desktop/tablet)
+- Banner 320x50 (small mobile)
 
-- `index.html` — halaman utama
-- `css/style.css` — tampilan Reel
-- `js/videos.js` — daftar URL video Cloudinary
-- `js/app.js` — player, autoplay, like, share, view lokal
-- `index-v1-backup.html` — backup index versi sebelumnya
+Ads are loaded from `js/ads.js` and inserted by `js/app.js`.
 
-## Menambah video
+## Video data
+Edit `js/videos.js` and add Cloudinary MP4 URLs to the `VIDEOS` array.
 
-Buka `js/videos.js`, lalu tambahkan objek:
-
-```js
-{
-  id: "video-002",
-  title: "Judul video",
-  src: "https://res.cloudinary.com/USERNAME/video/upload/VIDEO.mp4",
-  description: "Deskripsi",
-  poster: ""
-}
-```
-
-Untuk Cloudinary, `poster` boleh dikosongkan. Sistem akan mencoba membuat poster JPG otomatis dari frame pertama video.
-
-## Catatan
-
-View dan Like pada versi ini disimpan di browser (`localStorage`), sehingga belum menjadi statistik global.
-
-Untuk statistik global, login pengguna, database, upload otomatis, dan dashboard admin, diperlukan backend/database pada tahap berikutnya.
+## Important
+Do not paste the Adsterra scripts a second time elsewhere in the HTML. If Adsterra changes or disables a code, update only `js/ads.js`.

@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
-  <title>Reelx21</title>
+  <title>Reelx21 — Reels</title>
   <style>
     *{box-sizing:border-box}
     html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family:Arial,sans-serif;overflow:hidden}
     #feed{height:100dvh;width:100%;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
     .item{position:relative;width:100%;height:100dvh;scroll-snap-align:start;background:#000;display:flex;align-items:center;justify-content:center}
-    video{width:100%;height:100%;object-fit:cover;background:#000}
+    video{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+    .item video{max-width:100%;max-height:100%}
     .top{position:absolute;top:0;left:0;right:0;padding:18px 18px 10px;z-index:5;display:flex;justify-content:space-between;pointer-events:none;background:linear-gradient(#0008,transparent)}
     .brand{font-size:20px;font-weight:700}
     .badge{font-size:12px;opacity:.8}
@@ -39,7 +40,7 @@
 
 <script>
 /*
-  REELX21 V1
+  REELX21 V2
   ==========================================
   1. Ganti URL video di bagian VIDEOS.
   2. Setelah mendapat kode Adsterra, tempel kode
@@ -51,19 +52,11 @@
 // ====== SUMBER VIDEO ======
 const VIDEOS = [
   {
+    id: "tourguide-dabong-1788716188647",
     src: "https://res.cloudinary.com/jqjqfu7f/video/upload/v1788716206/ssstik.io__tourguide_dabong_1788716188647.mp4",
     username: "@Reelx21",
-    caption: "Video demo — V1 berhasil berjalan."
-  },
-  {
-    src: "https://res.cloudinary.com/jqjqfu7f/video/upload/v1788716206/ssstik.io__tourguide_dabong_1788716188647.mp4",
-    username: "@Reelx21",
-    caption: "Swipe ke atas untuk video berikutnya."
-  },
-  {
-    src: "https://res.cloudinary.com/jqjqfu7f/video/upload/v1788716206/ssstik.io__tourguide_dabong_1788716188647.mp4",
-    username: "@Reelx21",
-    caption: "Video ini menggunakan URL Cloudinary untuk pengujian."
+    caption: "Video demo dari Cloudinary — Reelx21 V2.",
+    poster: "https://res.cloudinary.com/jqjqfu7f/video/upload/so_0/ssstik.io__tourguide_dabong_1788716188647.jpg"
   }
 ];
 
@@ -85,7 +78,8 @@ const ADSTERRA_BANNER_HTML = `
 // ====== PEMBUAT FEED ======
 const feed = document.getElementById("feed");
 let videoElements = [];
-let viewCounts = {};
+let viewCounts = JSON.parse(localStorage.getItem("reelx21_views") || "{}");
+let likeCounts = JSON.parse(localStorage.getItem("reelx21_likes") || "{}");
 
 function makeVideo(data, index){
   const item = document.createElement("section");
@@ -102,6 +96,7 @@ function makeVideo(data, index){
       src="${data.src}"
       playsinline
       preload="metadata"
+      poster="${data.poster || ''}"
       controls
       loop
       muted
@@ -144,7 +139,10 @@ function makeVideo(data, index){
   const share = item.querySelector(".share");
   const views = item.querySelector(".views");
 
-  viewCounts[index] = 0;
+  if(viewCounts[data.id] == null) viewCounts[data.id] = 0;
+  views.textContent = `${viewCounts[data.id]} ${viewCounts[data.id] === 1 ? "view" : "views"}`;
+  likes.textContent = String(likeCounts[data.id] || 0);
+  if(localStorage.getItem(`reelx21_liked_${data.id}`) === "1"){ like.dataset.liked = "1"; like.textContent = "♥"; }
 
   item.addEventListener("click", (e)=>{
     if(e.target.closest("button")) return;
@@ -171,12 +169,16 @@ function makeVideo(data, index){
     like.dataset.liked = liked ? "0" : "1";
     like.textContent = liked ? "♡" : "♥";
     let n = Number(likes.textContent) || 0;
-    likes.textContent = liked ? Math.max(0,n-1) : n+1;
+    n = liked ? Math.max(0,n-1) : n+1;
+    likes.textContent = n;
+    likeCounts[data.id] = n;
+    localStorage.setItem("reelx21_likes", JSON.stringify(likeCounts));
+    localStorage.setItem(`reelx21_liked_${data.id}`, liked ? "0" : "1");
   });
 
   share.addEventListener("click", async (e)=>{
     e.stopPropagation();
-    const url = location.href;
+    const url = `${location.origin}${location.pathname}#reel=${encodeURIComponent(data.id)}`;
     try{
       if(navigator.share){
         await navigator.share({title:"Reelx21",text:data.caption,url});
@@ -189,8 +191,9 @@ function makeVideo(data, index){
 
   video.addEventListener("play",()=>{
     if(viewCounts[index] === 0){
-      viewCounts[index] = 1;
-      views.textContent = "1 view";
+      viewCounts[data.id] = (viewCounts[data.id] || 0) + 1;
+      views.textContent = `${viewCounts[data.id]} ${viewCounts[data.id] === 1 ? "view" : "views"}`;
+      localStorage.setItem("reelx21_views", JSON.stringify(viewCounts));
     }
   });
 

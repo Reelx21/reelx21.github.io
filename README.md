@@ -1,21 +1,33 @@
-# Reelx21 V2
+# Reelx21 V3 — Cloudinary Reels
 
-Pemutar Reels berbasis GitHub Pages dengan video yang di-host di Cloudinary.
+Versi ini menggunakan Cloudinary sebagai tempat penyimpanan video dan GitHub Pages sebagai frontend.
+
+## Struktur
+
+- `index.html` — halaman utama
+- `css/style.css` — tampilan Reel
+- `js/videos.js` — daftar URL video Cloudinary
+- `js/app.js` — player, autoplay, like, share, view lokal
+- `index-v1-backup.html` — backup index versi sebelumnya
 
 ## Menambah video
-Edit `VIDEOS` di `index.html`, lalu tambahkan objek:
+
+Buka `js/videos.js`, lalu tambahkan objek:
 
 ```js
 {
-  id: "id-unik",
-  src: "URL-VIDEO-CLOUDINARY",
-  username: "@Reelx21",
-  caption: "Caption video",
-  poster: "URL-POSTER-CLOUDINARY"
+  id: "video-002",
+  title: "Judul video",
+  src: "https://res.cloudinary.com/USERNAME/video/upload/VIDEO.mp4",
+  description: "Deskripsi",
+  poster: ""
 }
 ```
 
+Untuk Cloudinary, `poster` boleh dikosongkan. Sistem akan mencoba membuat poster JPG otomatis dari frame pertama video.
+
 ## Catatan
-- Video tidak disimpan di GitHub; hanya URL Cloudinary yang dipanggil.
-- View dan like pada versi ini disimpan di browser pengunjung (localStorage), bukan database global.
-- Kode Adsterra belum dimasukkan. Masukkan kode resmi dari dashboard Adsterra setelah siap.
+
+View dan Like pada versi ini disimpan di browser (`localStorage`), sehingga belum menjadi statistik global.
+
+Untuk statistik global, login pengguna, database, upload otomatis, dan dashboard admin, diperlukan backend/database pada tahap berikutnya.
